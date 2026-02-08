@@ -34,19 +34,28 @@ body{
 svg{width:100%;height:120px;}
 .curve-text{fill:#c94a7c;font-size:28px;}
 
-.couple{
+.video-wrap{
+  position:relative;
   width:260px;
-  margin:12px 0;
-  animation:float 1.2s infinite alternate;
-  border-radius:12px;
+  margin:12px auto;
 }
+
+.couple{
+  position:absolute;
+  top:0;left:0;
+  width:100%;
+  border-radius:12px;
+  animation:float 1.2s infinite alternate;
+  transition:opacity .6s ease;
+  opacity:0;
+}
+
+.couple.active{opacity:1;}
 
 @keyframes float{
   from{transform:translateY(0);}
   to{transform:translateY(-10px);}
 }
-
-.hidden{display:none;}
 
 button{
   padding:10px 25px;
@@ -82,7 +91,7 @@ button{
 
 <body>
 
-<div class="container" id="app">
+<div class="container">
 
 <svg viewBox="0 0 500 150">
   <path id="curve" d="M50,100 Q250,20 450,100" fill="transparent"/>
@@ -91,9 +100,10 @@ button{
   </text>
 </svg>
 
-<!-- 🔥 DOUBLE BUFFER VIDEOS -->
-<video id="videoA" class="couple" src="day9.mp4" autoplay loop muted playsinline></video>
-<video id="videoB" class="couple hidden" autoplay loop muted playsinline></video>
+<div class="video-wrap">
+  <video id="videoA" class="couple active" src="day9.mp4" autoplay loop muted playsinline></video>
+  <video id="videoB" class="couple" muted playsinline></video>
+</div>
 
 <div id="controls">
   <button id="yes">YES 💖</button>
@@ -121,14 +131,6 @@ noBtn.onmouseover=()=>{
   noBtn.style.top=Math.random()*80+"vh";
 };
 
-let step=0;
-let active = "A";
-
-const titleText = document.getElementById("titleText");
-const videoA = document.getElementById("videoA");
-const videoB = document.getElementById("videoB");
-const controls = document.getElementById("controls");
-
 const days=[
   {text:"Phool for my Fool - Happy rose day babyy🌹",src:"day1.mp4"},
   {text:"Will you be mine? 💍",src:"day2.mp4"},
@@ -140,24 +142,39 @@ const days=[
   {text:"Happy Valentine's day babyy 🤗❤️",src:"day8.mp4"}
 ];
 
-document.getElementById("yes").onclick = nextWish;
+let step=0;
+let active="A";
+const videoA=document.getElementById("videoA");
+const videoB=document.getElementById("videoB");
+const titleText=document.getElementById("titleText");
+const controls=document.getElementById("controls");
+
+document.getElementById("yes").onclick=nextWish;
+
+function warmVideo(v){
+  v.play().then(()=>v.pause()).catch(()=>{});
+}
 
 function nextWish(){
   if(step < days.length){
     titleText.textContent = days[step].text;
 
-    const current = active === "A" ? videoA : videoB;
-    const next = active === "A" ? videoB : videoA;
+    const current = active==="A"?videoA:videoB;
+    const next = active==="A"?videoB:videoA;
 
     next.src = days[step].src;
     next.load();
 
-    next.oncanplay = () => {
-      current.classList.add("hidden");
-      next.classList.remove("hidden");
+    next.onloadeddata = ()=>{
+      warmVideo(next);
+
+      next.classList.add("active");
+      current.classList.remove("active");
+
       next.play();
       current.pause();
-      active = active === "A" ? "B" : "A";
+
+      active = active==="A"?"B":"A";
     };
 
     controls.innerHTML =
@@ -165,25 +182,7 @@ function nextWish(){
 
     step++;
   } else {
-    titleText.textContent = "Forever Yours ❤️";
-
-    const current = active === "A" ? videoA : videoB;
-    const next = active === "A" ? videoB : videoA;
-
-    next.src = "day10.mp4";
-    next.load();
-    next.oncanplay = () => {
-      current.classList.add("hidden");
-      next.classList.remove("hidden");
-      next.play();
-      current.pause();
-    };
-
-    controls.innerHTML = `
-      <div class="final">
-        I love you so much ❤️<br>
-        I’ll always be your safe place 😘
-      </div>`;
+    titleText.textContent="Forever Yours ❤️";
   }
 }
 </script>
