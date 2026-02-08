@@ -13,7 +13,6 @@ body{
   justify-content:center;
   align-items:center;
   overflow:hidden;
-  /* romantic cute background ONLY */
   background:linear-gradient(135deg,#ffd1dc,#ffe6f0,#fff1c1);
   background-size:400% 400%;
   animation:bg 10s ease infinite;
@@ -32,28 +31,21 @@ body{
   z-index:2;
 }
 
-/* Curved text */
 svg{width:100%;height:120px;}
 .curve-text{fill:#c94a7c;font-size:28px;}
 
-/* Media */
 .couple{
   width:260px;
   margin:12px 0;
   animation:float 1.2s infinite alternate;
   border-radius:12px;
-  position:relative;
-  z-index:1;
 }
-
-video.couple{background:#000;}
 
 @keyframes float{
   from{transform:translateY(0);}
   to{transform:translateY(-10px);}
 }
 
-/* Buttons */
 button{
   padding:10px 25px;
   font-size:18px;
@@ -61,14 +53,11 @@ button{
   border-radius:20px;
   cursor:pointer;
   margin:10px;
-  position:relative;
-  z-index:5;
 }
 
 #yes{background:#ff5c8a;color:white;}
-#no{background:#aaa;color:white;position:absolute;z-index:6;}
+#no{background:#aaa;color:white;position:absolute;}
 
-/* Hearts + sparkles */
 .heart{
   position:fixed;
   top:-10px;
@@ -81,9 +70,7 @@ button{
   to{transform:translateY(110vh);}
 }
 
-/* Final text */
 .final{
-  text-align:center;
   color:#c94a7c;
   font-size:20px;
   margin-top:15px;
@@ -93,30 +80,19 @@ button{
 
 <body>
 
-<!-- PRELOAD videos to fix 1 sec delay -->
-<video src="day1.mp4" preload="auto" hidden></video>
-<video src="day2.mp4" preload="auto" hidden></video>
-<video src="day3.mp4" preload="auto" hidden></video>
-<video src="day4.mp4" preload="auto" hidden></video>
-<video src="day5.mp4" preload="auto" hidden></video>
-<video src="day6.mp4" preload="auto" hidden></video>
-<video src="day7.mp4" preload="auto" hidden></video>
-<video src="day8.mp4" preload="auto" hidden></video>
-<video src="day9.mp4" preload="auto" hidden></video>
-<video src="day10.mp4" preload="auto" hidden></video>
-
 <div class="container" id="app">
 
 <svg viewBox="0 0 500 150">
   <path id="curve" d="M50,100 Q250,20 450,100" fill="transparent"/>
   <text class="curve-text">
-    <textPath href="#curve">Ready for 7 days of love?</textPath>
+    <textPath href="#curve" id="titleText">Ready for 7 days of love?</textPath>
   </text>
 </svg>
 
-<video class="couple" src="day9.mp4" autoplay loop muted playsinline></video>
+<!-- 🔥 SAME VIDEO ELEMENT ALWAYS -->
+<video id="mainVideo" class="couple" src="day9.mp4" autoplay loop muted playsinline></video>
 
-<div>
+<div id="controls">
   <button id="yes">YES 💖</button>
   <button id="no">NO 😈</button>
 </div>
@@ -124,7 +100,7 @@ button{
 </div>
 
 <script>
-/* Floating hearts + ✨ ONLY change */
+/* hearts + ✨ */
 setInterval(()=>{
   let h=document.createElement("div");
   h.className="heart";
@@ -135,7 +111,7 @@ setInterval(()=>{
   setTimeout(()=>h.remove(),5000);
 },300);
 
-/* Naughty NO button */
+/* naughty NO */
 const noBtn=document.getElementById("no");
 noBtn.onmouseover=()=>{
   noBtn.style.left=Math.random()*90+"vw";
@@ -143,55 +119,46 @@ noBtn.onmouseover=()=>{
 };
 
 let step=0;
-const app=document.getElementById("app");
+const titleText=document.getElementById("titleText");
+const video=document.getElementById("mainVideo");
+const controls=document.getElementById("controls");
 
 const days=[
-  {text:"Phool for my Fool - Happy rose day babyy🌹",type:"video",src:"day1.mp4"},
-  {text:"Will you be mine? 💍",type:"video",src:"day2.mp4"},
-  {text:"Chocolate for you 🍫",type:"video",src:"day3.mp4"},
-  {text:"Happy teddy Day 🧸",type:"video",src:"day4.mp4"},
-  {text:"Happy Promise day 🤞🏻",type:"video",src:"day5.mp4"},
-  {text:"Hugsss for youu - Happy hug day my loveee",type:"video",src:"day6.mp4"},
-  {text:"Kisses for you - Happy kiss day 💋",type:"video",src:"day7.mp4"},
-  {text:"Happy Valentine's day babyy 🤗❤️",type:"video",src:"day8.mp4"}
+  {text:"Phool for my Fool - Happy rose day babyy🌹",src:"day1.mp4"},
+  {text:"Will you be mine? 💍",src:"day2.mp4"},
+  {text:"Chocolate for you 🍫",src:"day3.mp4"},
+  {text:"Happy teddy Day 🧸",src:"day4.mp4"},
+  {text:"Happy Promise day 🤞🏻",src:"day5.mp4"},
+  {text:"Hugsss for youu - Happy hug day my loveee",src:"day6.mp4"},
+  {text:"Kisses for you - Happy kiss day 💋",src:"day7.mp4"},
+  {text:"Happy Valentine's day babyy 🤗❤️",src:"day8.mp4"}
 ];
 
 document.getElementById("yes").onclick=nextWish;
 
 function nextWish(){
   if(step < days.length){
-    app.innerHTML=`
-      <svg viewBox="0 0 500 150">
-        <path id="curve" d="M50,100 Q250,20 450,100" fill="transparent"/>
-        <text class="curve-text">
-          <textPath href="#curve">${days[step].text}</textPath>
-        </text>
-      </svg>
+    titleText.textContent = days[step].text;
 
-      <video class="couple" autoplay loop muted playsinline>
-        <source src="${days[step].src}" type="video/mp4">
-      </video>
+    video.pause();
+    video.src = days[step].src;
+    video.load();
+    video.play();
 
-      <div style="cursor:pointer;color:#c94a7c;z-index:5;position:relative"
-           onclick="nextWish()">CLICK 💕</div>
-    `;
+    controls.innerHTML = `<div style="cursor:pointer;color:#c94a7c" onclick="nextWish()">CLICK 💕</div>`;
     step++;
   } else {
-    app.innerHTML=`
-      <svg viewBox="0 0 500 150">
-        <path id="curve" d="M40,100 Q250,30 460,100" fill="transparent"/>
-        <text class="curve-text">
-          <textPath href="#curve">Forever Yours ❤️</textPath>
-        </text>
-      </svg>
+    titleText.textContent = "Forever Yours ❤️";
 
-      <video class="couple" src="day10.mp4" autoplay loop muted playsinline></video>
+    video.src="day10.mp4";
+    video.load();
+    video.play();
 
+    controls.innerHTML = `
       <div class="final">
         I love you so much ❤️<br>
         I’ll always be your safe place 😘
-      </div>
-    `;
+      </div>`;
   }
 }
 </script>
