@@ -8,12 +8,18 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Comic Sans MS',cursive;}
 
 body{
-  background:#ffe6ee;
   height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
   overflow:hidden;
+  background:linear-gradient(135deg,#ffd6e8,#ffeecf,#ffd6e8);
+  animation:bgMove 10s infinite alternate;
+}
+
+@keyframes bgMove{
+  from{background-position:0% 50%;}
+  to{background-position:100% 50%;}
 }
 
 .container{
@@ -32,12 +38,8 @@ svg{width:100%;height:120px;}
   width:260px;
   margin:12px 0;
   animation:float 1.2s infinite alternate;
-  border-radius:12px;
-  position:relative;
-  z-index:1;
+  border-radius:14px;
 }
-
-video.couple{background:#000;}
 
 @keyframes float{
   from{transform:translateY(0);}
@@ -52,37 +54,62 @@ button{
   border-radius:20px;
   cursor:pointer;
   margin:10px;
-  position:relative;
-  z-index:5;
 }
 
 #yes{background:#ff5c8a;color:white;}
-#no{background:#aaa;color:white;position:absolute;z-index:6;}
+#no{background:#aaa;color:white;position:absolute;}
 
-/* Hearts */
+/* Hearts + Sparkles */
 .heart{
   position:fixed;
   top:-10px;
-  color:#ff5c8a;
   animation:fall linear infinite;
   z-index:0;
+  font-size:20px;
 }
 
 @keyframes fall{
-  to{transform:translateY(110vh);}
+  to{transform:translateY(110vh) rotate(360deg);}
 }
 
-/* Final text */
-.final{
-  text-align:center;
+/* Click text */
+.clickText{
   color:#c94a7c;
-  font-size:20px;
+  cursor:pointer;
+  font-size:18px;
+  transition:all .6s ease;
+}
+
+/* Letter note */
+.letter{
+  background:#fff;
+  padding:18px;
+  border-radius:12px;
+  box-shadow:0 10px 25px rgba(0,0,0,.15);
+  color:#c94a7c;
   margin-top:15px;
+  animation:fadeIn .8s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
 }
 </style>
 </head>
 
 <body>
+
+<!-- preload videos to remove lag -->
+<video src="day1.mp4" preload="auto" hidden></video>
+<video src="day2.mp4" preload="auto" hidden></video>
+<video src="day3.mp4" preload="auto" hidden></video>
+<video src="day4.mp4" preload="auto" hidden></video>
+<video src="day5.mp4" preload="auto" hidden></video>
+<video src="day6.mp4" preload="auto" hidden></video>
+<video src="day7.mp4" preload="auto" hidden></video>
+<video src="day8.mp4" preload="auto" hidden></video>
+<video src="day10.mp4" preload="auto" hidden></video>
 
 <div class="container" id="app">
 
@@ -103,43 +130,42 @@ button{
 </div>
 
 <script>
-/* Floating hearts */
+/* Hearts + sparkles */
 setInterval(()=>{
   let h=document.createElement("div");
   h.className="heart";
-  h.innerHTML="❤";
+  h.innerHTML=Math.random()>0.7 ? "✨" : "❤";
   h.style.left=Math.random()*100+"vw";
-  h.style.animationDuration=2+Math.random()*3+"s";
+  h.style.animationDuration=3+Math.random()*3+"s";
   document.body.appendChild(h);
-  setTimeout(()=>h.remove(),5000);
-},300);
+  setTimeout(()=>h.remove(),6000);
+},250);
 
-/* Naughty NO button */
+/* Naughty NO */
 const noBtn=document.getElementById("no");
 noBtn.onmouseover=()=>{
-  noBtn.style.left=Math.random()*90+"vw";
-  noBtn.style.top=Math.random()*80+"vh";
+  noBtn.style.left=Math.random()*80+"vw";
+  noBtn.style.top=Math.random()*70+"vh";
 };
 
 let step=0;
 const app=document.getElementById("app");
 
 const days=[
-  {text:"Phool for my Fool - Happy rose day babyy🌹",type:"video",src:"day1.mp4"},
-  {text:"Will you be mine? 💍",type:"video",src:"day2.mp4"},
-  {text:"Chocolate for you 🍫",type:"video",src:"day3.mp4"},
-  {text:"Happy teddy Day 🧸",type:"video",src:"day4.mp4"},
-  {text:"Happy Promise day 🤞🏻",type:"video",src:"day5.mp4"},
-  {text:"Hugsss for youu - Happy hug day my loveee",type:"video",src:"day6.mp4"},
-  {text:"Kisses for you - Happy kiss day 💋",type:"video",src:"day7.mp4"},
-  {text:"Happy Valentine's day babyy 🤗❤️",type:"video",src:"day8.mp4"}
+  {text:"Phool for my Fool - Happy rose day babyy🌹",src:"day1.mp4"},
+  {text:"Will you be mine? 💍",src:"day2.mp4"},
+  {text:"Chocolate for you 🍫",src:"day3.mp4"},
+  {text:"Happy teddy Day 🧸",src:"day4.mp4"},
+  {text:"Happy Promise day 🤞🏻",src:"day5.mp4"},
+  {text:"Hugsss for youu - Happy hug day my loveee",src:"day6.mp4"},
+  {text:"Kisses for you - Happy kiss day 💋",src:"day7.mp4"},
+  {text:"Happy Valentine's day babyy 🤗❤️",src:"day8.mp4"}
 ];
 
 document.getElementById("yes").onclick=nextWish;
 
 function nextWish(){
   if(step < days.length){
-
     app.innerHTML=`
       <svg viewBox="0 0 500 150">
         <path id="curve" d="M50,100 Q250,20 450,100" fill="transparent"/>
@@ -148,17 +174,12 @@ function nextWish(){
         </text>
       </svg>
 
-      <video class="couple" autoplay loop muted playsinline>
-        <source src="${days[step].src}" type="video/mp4">
-      </video>
+      <video class="couple" src="${days[step].src}" autoplay loop muted playsinline></video>
 
-      <div style="cursor:pointer;color:#c94a7c;z-index:5;position:relative"
-           onclick="nextWish()">CLICK 💕</div>
+      <div class="clickText" onclick="showLetter(this)">CLICK HERE 💕</div>
     `;
     step++;
-
   } else {
-
     app.innerHTML=`
       <svg viewBox="0 0 500 150">
         <path id="curve" d="M40,100 Q250,30 460,100" fill="transparent"/>
@@ -169,15 +190,18 @@ function nextWish(){
 
       <video class="couple" src="day10.mp4" autoplay loop muted playsinline></video>
 
-      <div class="final">
+      <div class="letter">
         I love you so much ❤️<br>
         I’ll always be your safe place 😘
       </div>
     `;
   }
 }
+
+function showLetter(el){
+  el.outerHTML=`<div class="letter">Click karte hi dil se likha hua yeh note sirf tumhare liye 💌</div>`;
+}
 </script>
 
 </body>
 </html>
-
